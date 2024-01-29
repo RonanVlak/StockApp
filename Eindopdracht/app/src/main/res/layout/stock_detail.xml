@@ -5,15 +5,8 @@
     android:layout_width="wrap_content"
     android:layout_weight="2"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".StockDetail">
 
-
-    <ListView
-        android:id="@+id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="left"
-        tools:ignore="MissingConstraints" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

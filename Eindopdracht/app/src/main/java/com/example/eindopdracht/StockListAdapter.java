@@ -1,8 +1,5 @@
 package com.example.eindopdracht;
-import static com.example.eindopdracht.Constant.FIRST_COLUMN;
-import static com.example.eindopdracht.Constant.SECOND_COLUMN;
-import static com.example.eindopdracht.Constant.THIRD_COLUMN;
-import static com.example.eindopdracht.Constant.FOURTH_COLUMN;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +133,6 @@ public class StockListAdapter extends BaseAdapter   implements View.OnClickListe
 
             MainActivity sct = (MainActivity)activity;
 
-            /****  Call  onItemClick Method inside CustomListViewAndroidExample Class ( See Below )****/
 
             sct.onItemClick(mPosition);
         }

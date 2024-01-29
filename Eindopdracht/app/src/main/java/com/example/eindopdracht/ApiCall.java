@@ -70,6 +70,10 @@ public class ApiCall extends Thread {
                 System.out.println(previousClose);
                 return previousClose;
             }
+            else if (type == "Details") {
+                String jsonfile = meta.toString();
+                return jsonfile;
+            }
         } catch (IOException e) {
             //Error in call
             e.printStackTrace();

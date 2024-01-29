@@ -3,6 +3,7 @@ package com.example.eindopdracht;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.eindopdracht.ApiCall;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -106,15 +107,20 @@ public class MainActivity extends AppCompatActivity {
     public void onItemClick(int mPosition)
     {
         Stock tempValues = ( Stock ) CustomListViewValuesArr.get(mPosition);
+        /** Send to second screen **/
 
-
+        Intent myIntent = new Intent(MainActivity.this,
+                StockDetail.class);
+        startActivity(myIntent);
         // SHOW ALERT
-
+    /*
         Toast.makeText(CustomListView,
                 ""+tempValues.getStockName()
                         +" Price:"+tempValues.getPrice()
             +" Url:"+tempValues.getDaychange(),
         Toast.LENGTH_LONG)
                     .show();
+
+     */
     }
 }
