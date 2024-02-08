@@ -26,18 +26,30 @@ public class MainActivity extends AppCompatActivity {
 
     private volatile String StockPrice;
     private volatile String change;
+    Stock AAPL = new Stock();
+    AAPL.SetStockName("AAPL");
+    Stock TSLA = new Stock();
+    TSLA.SetStockName("TSLA");
+    Stock MSFT = new Stock();
+    MSFT.SetStockName("MSFT");
+    Stock NVDA = new Stock();
+    NVDA.SetStockName("NVDA");
+    Stock INTL = new Stock();
+    INTL.SetStockName("INTL");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         CustomListView = this;
-
+        /*
         setListData("AAPL");
         setListData("TSLA");
         setListData("MSFT");
         setListData("NVDA");
         setListData("INTL");
+        */
 
+        setListData(AAPL);
 
         Resources res =getResources();
         list= ( ListView )findViewById( R.id.list );  // List defined in XML ( See Below )
@@ -45,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         /**************** Create Custom Adapter *********/
         adapter=new StockListAdapter( CustomListView, CustomListViewValuesArr,res );
         list.setAdapter( adapter );
+
+
 
     }
 
@@ -91,17 +105,28 @@ public class MainActivity extends AppCompatActivity {
             return String.format("%.2f", changed);
     }
     /****** Function to set data in ArrayList *************/
+    /*
     public void setListData(String symbol)
     {
             final Stock sched = new Stock();
 
-            /******* Firstly take data in model object ******/
             sched.setStockName(symbol);
             sched.setPrice("Current Price: $" + getPriceData(symbol));
             sched.setDaychange("Change since previous close: $" + getChangeData(symbol));
 
-            /******** Take Model Object in ArrayList **********/
             CustomListViewValuesArr.add( sched );
+
+    }
+    */
+    public void setListData(Stock stock)
+    {
+       // final Stock sched = new Stock();
+
+        stock.setStockName(stock.getStockName());
+        stock.setPrice("Current Price: $" + getPriceData(stock.getStockName()));
+        stock.setDaychange("Change since previous close: $" + getChangeData(stock.getStockName()));
+
+        CustomListViewValuesArr.add( stock );
 
     }
     public void onItemClick(int mPosition)
