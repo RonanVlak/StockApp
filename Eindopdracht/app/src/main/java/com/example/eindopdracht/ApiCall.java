@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
+import com.example.eindopdracht.Stock;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,18 +28,18 @@ public class ApiCall extends Thread {
 
     }
 
-    public String updateStockPrice (String symbol, String type) {
+    public Stock updateStockPrice (Stock stock) {
         try {
         OkHttpClient client = new OkHttpClient();
 
         RequestBody body = new FormBody.Builder()
-                .add("symbols", symbol)
+                .add("symbols", stock.getStockName())
              //   .add("fields", "regularMarketPrice")
                 .build();
 
         Request request = new Request.Builder()
         //      .url("https://query1.finance.yahoo.com/v10/finance/quote?&symbols=" + symbol + "&fields=regularMarketPrice")
-                .url("https://query1.finance.yahoo.com/v8/finance/chart/" + symbol)
+                .url("https://query1.finance.yahoo.com/v8/finance/chart/" + stock.getStockName())
                 .get()
                 .build();
 
@@ -60,27 +60,19 @@ public class ApiCall extends Thread {
             JSONObject zero = result.getJSONObject(0);
             JSONObject meta = zero.getJSONObject("meta");
 
-            if (type == "Price") {
-                String regMarketPrice = meta.getString("regularMarketPrice");
-                System.out.println(regMarketPrice);
-                return regMarketPrice;
-            }
-            if (type == "Change") {
-                String previousClose = meta.getString("previousClose");
-                System.out.println(previousClose);
-                return previousClose;
-            }
-            else if (type == "Details") {
-                String jsonfile = meta.toString();
-                return jsonfile;
-            }
+            stock.setPrice(meta.getString("regularMarketPrice"));
+            stock.setPrevClose(meta.getString("previousClose"));
+            stock.setCurrency(meta.getString("currency"));
+            stock.setExchangeName(meta.getString("exchangeName"));
+            stock.setInstrumentType(meta.getString("instrumentType"));
+
         } catch (IOException e) {
             //Error in call
             e.printStackTrace();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        return "Something went wrong";
+        return stock;
     }
 
     }

@@ -2,6 +2,7 @@ package com.example.eindopdracht;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.eindopdracht.ApiCall;
+import com.example.eindopdracht.Stock;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -26,30 +27,42 @@ public class MainActivity extends AppCompatActivity {
 
     private volatile String StockPrice;
     private volatile String change;
-    Stock AAPL = new Stock();
-    AAPL.SetStockName("AAPL");
-    Stock TSLA = new Stock();
-    TSLA.SetStockName("TSLA");
-    Stock MSFT = new Stock();
-    MSFT.SetStockName("MSFT");
-    Stock NVDA = new Stock();
-    NVDA.SetStockName("NVDA");
-    Stock INTL = new Stock();
-    INTL.SetStockName("INTL");
+    Stock AAPL;
+    Stock TSLA;
+    Stock MSFT;
+    Stock NVDA;
+    Stock INTC;
+    Stock BITCOIN;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         CustomListView = this;
-        /*
-        setListData("AAPL");
-        setListData("TSLA");
-        setListData("MSFT");
-        setListData("NVDA");
-        setListData("INTL");
-        */
+
+        AAPL = new Stock();
+        AAPL.setStockName("AAPL");
+
+        TSLA = new Stock();
+        TSLA.setStockName("TSLA");
+
+        MSFT = new Stock();
+        MSFT.setStockName("MSFT");
+
+        NVDA = new Stock();
+        NVDA.setStockName("NVDA");
+
+        INTC = new Stock();
+        INTC.setStockName("INTC");
+
+        BITCOIN = new Stock();
+        BITCOIN.setStockName("BTC-USD");
 
         setListData(AAPL);
+        setListData(TSLA);
+        setListData(MSFT);
+        setListData(NVDA);
+        setListData(INTC);
+        setListData(BITCOIN);
 
         Resources res =getResources();
         list= ( ListView )findViewById( R.id.list );  // List defined in XML ( See Below )
@@ -57,17 +70,13 @@ public class MainActivity extends AppCompatActivity {
         /**************** Create Custom Adapter *********/
         adapter=new StockListAdapter( CustomListView, CustomListViewValuesArr,res );
         list.setAdapter( adapter );
-
-
-
     }
 
-    public String getPriceData(String symbol) {
-
+    public void updateStockData( Stock stock) {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                StockPrice = api.updateStockPrice(symbol, "Price");
+                api.updateStockPrice(stock);
             }
         });
         t.start();
@@ -77,54 +86,28 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        return StockPrice;
     }
-
-    public String getChangeData(String symbol) {
+    public String getChangeData(Stock stock) {
         final DecimalFormat df = new DecimalFormat("0.00");
+            String input = stock.getPrice();
+            float currPrice = Float.parseFloat(input.replaceAll("[^\\d.]", ""));
 
-            Thread t = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    change = api.updateStockPrice(symbol, "Change");
-                }
-            });
-            t.start();
-
-            try {
-                t.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            float currPrice = Float.parseFloat(StockPrice);
-
-            float prevPrice = Float.parseFloat(change);
+            float prevPrice = Float.parseFloat(stock.getPrevClose());
 
             float changed = currPrice - prevPrice;
 
             return String.format("%.2f", changed);
     }
+
+
     /****** Function to set data in ArrayList *************/
-    /*
-    public void setListData(String symbol)
-    {
-            final Stock sched = new Stock();
-
-            sched.setStockName(symbol);
-            sched.setPrice("Current Price: $" + getPriceData(symbol));
-            sched.setDaychange("Change since previous close: $" + getChangeData(symbol));
-
-            CustomListViewValuesArr.add( sched );
-
-    }
-    */
     public void setListData(Stock stock)
     {
        // final Stock sched = new Stock();
-
+        updateStockData(stock);
         stock.setStockName(stock.getStockName());
-        stock.setPrice("Current Price: $" + getPriceData(stock.getStockName()));
-        stock.setDaychange("Change since previous close: $" + getChangeData(stock.getStockName()));
+        stock.setPrice("Current Price: $" + stock.getPrice());
+        stock.setDaychange("Change since previous close: $" + getChangeData(stock));
 
         CustomListViewValuesArr.add( stock );
 
@@ -136,16 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent myIntent = new Intent(MainActivity.this,
                 StockDetail.class);
+        myIntent.putExtra("stockObject", tempValues);
         startActivity(myIntent);
-        // SHOW ALERT
-    /*
-        Toast.makeText(CustomListView,
-                ""+tempValues.getStockName()
-                        +" Price:"+tempValues.getPrice()
-            +" Url:"+tempValues.getDaychange(),
-        Toast.LENGTH_LONG)
-                    .show();
-
-     */
     }
 }
