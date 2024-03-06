@@ -1,7 +1,10 @@
 package com.example.eindopdracht;
 
+import android.app.ActionBar;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -20,6 +23,9 @@ public class StockDetail extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.stock_detail);
+
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Stock stock = (Stock) getIntent().getSerializableExtra("stockObject");
 
         String symbol = stock.getStockName();
@@ -56,5 +62,15 @@ public class StockDetail extends AppCompatActivity {
             }
         };
         listView.setAdapter(adapter);
+
+
+    }
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

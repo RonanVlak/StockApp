@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         setListData(BITCOIN);
 
         Resources res =getResources();
-        list= ( ListView )findViewById( R.id.list );  // List defined in XML ( See Below )
+        list= ( ListView )findViewById( R.id.list );
 
         /**************** Create Custom Adapter *********/
         adapter=new StockListAdapter( CustomListView, CustomListViewValuesArr,res );
