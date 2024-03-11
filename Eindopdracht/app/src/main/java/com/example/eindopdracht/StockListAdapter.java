@@ -15,127 +15,75 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 
+public class StockListAdapter extends BaseAdapter {
 
-public class StockListAdapter extends BaseAdapter   implements View.OnClickListener {
-
-    /*********** Declare Used Variables *********/
     private Activity activity;
-    private ArrayList data;
-    private static LayoutInflater inflater=null;
-    public Resources res;
-    Stock tempValues=null;
-    int i=0;
+    private ArrayList<Stock> data;
+    private LayoutInflater inflater;
+    private OnItemClickListener onItemClickListener;
 
-    /*************  CustomAdapter Constructor *****************/
-    public StockListAdapter(Activity a, ArrayList d,Resources resLocal) {
-
-        /********** Take passed values **********/
-        activity = a;
-        data=d;
-        res = resLocal;
-
-        /***********  Layout inflator to call external xml layout () ***********/
-        inflater = ( LayoutInflater )activity.
-                getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
+    public interface OnItemClickListener {
+        void onItemClick(int position);
     }
 
-    /******** What is the size of Passed Arraylist Size ************/
-    public int getCount() {
+    public StockListAdapter(Activity activity, ArrayList<Stock> data, OnItemClickListener onItemClickListener) {
+        this.activity = activity;
+        this.data = data;
+        this.onItemClickListener = onItemClickListener;
+        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
 
-        if(data.size()<=0)
-            return 1;
+    @Override
+    public int getCount() {
         return data.size();
     }
 
+    @Override
     public Object getItem(int position) {
-        return position;
+        return data.get(position);
     }
 
+    @Override
     public long getItemId(int position) {
         return position;
     }
 
-    /********* Create a holder Class to contain inflated xml file elements *********/
-    public static class ViewHolder{
-
-        public TextView text;
-        public TextView text1;
-        public TextView textWide;
-        public TextView text2;
-
-    }
-
-    /****** Depends upon data size called for each row , Create each ListView row *****/
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-        View vi = convertView;
         ViewHolder holder;
 
-        if(convertView==null){
-
-            /****** Inflate tabitem.xml file for each row ( Defined below ) *******/
-            vi = inflater.inflate(R.layout.tabitem, null);
-
-            /****** View Holder Object to contain tabitem.xml file elements ******/
-
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.tabitem, parent, false);
             holder = new ViewHolder();
-            holder.text = (TextView) vi.findViewById(R.id.text);
-            holder.text1=(TextView)vi.findViewById(R.id.text1);
-            holder.text2=(TextView)vi.findViewById(R.id.text2);
-
-            /************  Set holder with LayoutInflater ************/
-            vi.setTag( holder );
+            holder.text = convertView.findViewById(R.id.text);
+            holder.text1 = convertView.findViewById(R.id.text1);
+            holder.text2 = convertView.findViewById(R.id.text2);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
-        else
-            holder=(ViewHolder)vi.getTag();
 
-        if(data.size()<=0)
-        {
-            holder.text.setText("No Data");
+        Stock stock = data.get(position);
+        holder.text.setText(stock.getStockName());
+        holder.text1.setText(stock.getPrice());
+        holder.text2.setText(stock.getDaychange());
 
-        }
-        else
-        {
-            /***** Get each Model object from Arraylist ********/
-            tempValues=null;
-            tempValues = ( Stock ) data.get( position );
 
-            /************  Set Model values in Holder elements ***********/
-
-            holder.text.setText( tempValues.getStockName() );
-            holder.text1.setText( tempValues.getPrice() );
-            holder.text2.setText( tempValues.getDaychange() );
-
-            /******** Set Item Click Listner for LayoutInflater for each row *******/
-
-            vi.setOnClickListener(new OnItemClickListener( position ));
-        }
-        return vi;
+            // Set item click listener
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onItemClick(position);
+                }
+            });
+        return convertView;
     }
 
-    @Override
-    public void onClick(View v) {
-        Log.v("CustomAdapter", "=====Row button clicked=====");
+    private static class ViewHolder {
+        TextView text;
+        TextView text1;
+        TextView text2;
     }
 
-    /********* Called when Item click in ListView ************/
-    private class OnItemClickListener  implements View.OnClickListener {
-        private int mPosition;
-
-        OnItemClickListener(int position){
-            mPosition = position;
-        }
-
-        @Override
-        public void onClick(View arg0) {
-
-
-            MainActivity sct = (MainActivity)activity;
-
-
-            sct.onItemClick(mPosition);
-        }
-    }
 }
 

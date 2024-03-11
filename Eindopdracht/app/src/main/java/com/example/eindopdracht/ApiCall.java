@@ -30,24 +30,25 @@ public class ApiCall extends Thread {
 
     public Stock updateStockPrice (Stock stock) {
         try {
-        OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient();
 
-        RequestBody body = new FormBody.Builder()
-                .add("symbols", stock.getStockName())
-             //   .add("fields", "regularMarketPrice")
-                .build();
+            RequestBody body = new FormBody.Builder()
+                    .add("symbols", stock.getStockName())
+                    .build();
 
-        Request request = new Request.Builder()
-        //      .url("https://query1.finance.yahoo.com/v10/finance/quote?&symbols=" + symbol + "&fields=regularMarketPrice")
-                .url("https://query1.finance.yahoo.com/v8/finance/chart/" + stock.getStockName())
-                .get()
-                .build();
+            Request request = new Request.Builder()
+                    .url("https://query1.finance.yahoo.com/v8/finance/chart/" + stock.getStockName())
+                    .get()
+                    .build();
 
-        Response response = null;
+            Response response = null;
 
-            //Gson gson = new Gson();
+
             try {
                 response = client.newCall(request).execute();
+                if(!response.isSuccessful()) {
+                    return null;
+                }
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -60,19 +61,29 @@ public class ApiCall extends Thread {
             JSONObject zero = result.getJSONObject(0);
             JSONObject meta = zero.getJSONObject("meta");
 
-            stock.setPrice(meta.getString("regularMarketPrice"));
-            stock.setPrevClose(meta.getString("previousClose"));
-            stock.setCurrency(meta.getString("currency"));
-            stock.setExchangeName(meta.getString("exchangeName"));
-            stock.setInstrumentType(meta.getString("instrumentType"));
+            String regularMarketPrice = meta.optString("regularMarketPrice", null);
+            String previousClose = meta.optString("previousClose", null);
+            String currency = meta.optString("currency", null);
+            String exchangeName = meta.optString("exchangeName", null);
+            String instrumentType = meta.optString("instrumentType", null);
 
-        } catch (IOException e) {
+            // Check if all required fields are present
+            if (regularMarketPrice != null && previousClose != null && currency != null && exchangeName != null && instrumentType != null) {
+                stock.setPrice(regularMarketPrice);
+                stock.setPrevClose(previousClose);
+                stock.setCurrency(currency);
+                stock.setExchangeName(exchangeName);
+                stock.setInstrumentType(instrumentType);
+            } else {
+                // Handle the case when one or more fields are missing
+                Log.e("ApiCall", "One or more fields missing in JSON response");
+            }
+
+            } catch (IOException | JSONException e) {
             //Error in call
             e.printStackTrace();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
         }
         return stock;
     }
 
-    }
+}
