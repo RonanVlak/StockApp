@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -21,7 +22,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceManager;
 
 import com.example.eindopdracht.ApiCall;
 import com.example.eindopdracht.R;
@@ -148,22 +148,20 @@ public class MainFragment extends Fragment {
 
         builder.show();
     }
+        private void updateStockData(final Stock stock) {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    api.updateStockPrice(stock);
+                    return null;
+                }
 
-    private void updateStockData(final Stock stock) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                api.updateStockPrice(stock);
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setListData(stock);
-                    }
-                });
-            }
-        });
-        t.start();
-    }
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    setListData(stock);
+                }
+            }.execute();
+        }
 
     private String getChangeData(Stock stock) {
         DecimalFormat df = new DecimalFormat("0.00");

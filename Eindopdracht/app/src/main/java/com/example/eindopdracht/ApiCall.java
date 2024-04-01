@@ -1,7 +1,12 @@
 package com.example.eindopdracht;
+import android.content.Context;
 import android.util.Log;
-import com.google.gson.Gson;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,33 +33,31 @@ public class ApiCall extends Thread {
 
     }
 
-    public Stock updateStockPrice (Stock stock) {
-        try {
+    public Stock updateStockPrice(Stock stock) {
             OkHttpClient client = new OkHttpClient();
-
-            RequestBody body = new FormBody.Builder()
-                    .add("symbols", stock.getStockName())
-                    .build();
 
             Request request = new Request.Builder()
                     .url("https://query1.finance.yahoo.com/v8/finance/chart/" + stock.getStockName())
                     .get()
                     .build();
 
-            Response response = null;
-
-
             try {
-                response = client.newCall(request).execute();
-                if(!response.isSuccessful()) {
-                    return null;
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    processResponse(response.body().string(), stock);
+                } else {
+                    Log.e("ApiCall", "Failed to fetch stock data. HTTP status code: " + response.code());
+                    // Handle unsuccessful response
                 }
+            } catch (IOException e) {
+                Log.e("ApiCall", "Error fetching stock data: " + e.getMessage());
+                // Handle network or I/O error
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            String jsonData = response.body().string();
-            System.out.println(jsonData);
+        return stock;
+    }
+
+    private Stock processResponse(String jsonData, Stock stock) {
+        try {
             JSONObject jObject = new JSONObject(jsonData);
             JSONObject chart = jObject.getJSONObject("chart");
             JSONArray result = chart.getJSONArray("result");
@@ -78,12 +81,10 @@ public class ApiCall extends Thread {
                 // Handle the case when one or more fields are missing
                 Log.e("ApiCall", "One or more fields missing in JSON response");
             }
-
-            } catch (IOException | JSONException e) {
-            //Error in call
+        } catch (JSONException e) {
+            // Error parsing JSON
             e.printStackTrace();
         }
         return stock;
     }
-
 }
